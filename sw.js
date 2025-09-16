@@ -8,7 +8,7 @@ const PRECACHE_URLS = [
   '/', // si tu index está en la raíz
   '/index.html',
   '/style.app.css',
-  '/app.app.js',
+  '/app.js',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
