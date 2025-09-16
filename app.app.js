@@ -353,7 +353,7 @@ class Finanzas {
     el.innerHTML=ahorros.map(a=>{
       const p=a.meta?Math.min(100,(a.actual/a.meta)*100):0;
       return `<div class="item">
-        <b>${a.nombre}</b><div class="meta">${fmt(a.actual)} / ${fmt(a.meta)}</div>
+        <b>${a.nombre</b><div class="meta">${fmt(a.actual)} / ${fmt(a.meta)}</div>
         <div style="background:#eef0f6;height:8px;border-radius:6px;margin-top:6px">
           <div style="width:${p.toFixed(1)}%;height:100%;background:#6c5ce7;border-radius:6px"></div>
         </div>
