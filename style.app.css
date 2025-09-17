@@ -3,8 +3,8 @@
   --card:#ffffff;
   --accent:#60d394;
   --ring:#dbeafe;
-  --shadow: 0 12px 30px rgba(11,12,38,0.12);
-  --radius:28px;
+  --shadow: 0 10px 30px rgba(11, 12, 38, 0.12);
+  --radius:24px;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
 *{box-sizing:border-box}
@@ -27,7 +27,7 @@ select#mesSelector{padding:12px 14px;border-radius:14px;border:1px solid rgba(25
 
 /* Cards */
 .cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
-.card{background:rgba(255,255,255,0.12);padding:18px;border-radius:18px;color:#fff;backdrop-filter:blur(6px);box-shadow:var(--shadow)}
+.card{background:rgba(255,255,255,0.15);padding:18px;border-radius:18px;color:#fff;backdrop-filter:blur(6px);box-shadow:var(--shadow)}
 .card.wide{grid-column:span 1}
 .card.accent{background:linear-gradient(90deg,#5eead4,#60a5fa)}
 .card-title{font-weight:700;opacity:.95}
@@ -45,7 +45,7 @@ select#mesSelector{padding:12px 14px;border-radius:14px;border:1px solid rgba(25
 .pill{background:#fff;padding:10px 14px;border-radius:14px;border:none;cursor:pointer}
 
 /* Items */
-.item{background:var(--card);padding:14px;border-radius:20px;margin:12px 0;box-shadow:var(--shadow);display:block}
+.item{background:var(--card);padding:14px;border-radius:18px;margin:12px 0;box-shadow:var(--shadow);display:block}
 .item .row{display:flex;justify-content:space-between;align-items:center}
 .meta{color:#6b7280;font-size:13px;margin-top:6px}
 .actions{margin-top:10px;display:flex;gap:12px}
@@ -53,7 +53,7 @@ select#mesSelector{padding:12px 14px;border-radius:14px;border:1px solid rgba(25
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(8,6,23,0.5);display:flex;align-items:center;justify-content:center;z-index:60}
 .modal.hidden{display:none}
-.modal-box{background:var(--card);width:min(760px,94%);border-radius:28px;padding:20px 28px;box-shadow:var(--shadow);position:relative}
+.modal-box{background:var(--card);width:min(720px,94%);border-radius:24px;padding:20px 28px;box-shadow:var(--shadow);position:relative}
 .modal-close{position:absolute;right:14px;top:14px;border:none;background:#fff;padding:8px;border-radius:8px;cursor:pointer}
 .modal h3{margin:0 0 14px}
 
@@ -67,11 +67,7 @@ select#mesSelector{padding:12px 14px;border-radius:14px;border:1px solid rgba(25
 .toast.show{opacity:1}
 
 /* Paid */
-.item.is-paid{opacity:.68;border:1px dashed #c7eed8}
-
-/* Extra badges/pills */
-.badge{display:inline-block;padding:2px 8px;font-size:12px;border-radius:999px;background:#e5e7eb;color:#374151;margin-left:6px;vertical-align:middle}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;border:1px solid var(--ring);background:#fff;text-decoration:none;font-weight:700;color:#2563eb}
+.item.is-paid{opacity:.66;border:1px dashed #c7eed8}
 
 /* Responsive */
 @media (min-width:900px){
