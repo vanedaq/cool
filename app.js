@@ -302,7 +302,7 @@ class Finanzas {
     const paidClass = i.paid ? "is-paid" : "";
     return `<div class="item ${paidClass}">
       <div class="row">
-        <div>💳 <b>${i.nombre}</b>
+        <div>💳 <b>${i.nombre</b>
           <div class="meta">Cuota ${fmt(i.cuotaMensual)} · ${i.cuotasPagadas||0}/${i.numeroCuotas} · tasa ${formatPctComma(i.tasaMensual)}%</div>
         </div>
         <div><b>Total ${fmt(i.montoTotal)}</b></div>
@@ -331,4 +331,284 @@ class Finanzas {
       <div class="actions">
         <a data-action="edit" data-key="${key}" data-id="${i.id}" href="#">✏️ Editar</a>
         <a data-action="del" data-key="${key}" data-id="${i.id}" href="#">🗑️ Eliminar</a>
-        <button data-action="paid" data-key="${key
+        <button data-action="paid" data-key="${key}" data-id="${i.id}" class="pill paid">${i.paid? "✅ Pagado":"Marcar Pago"}</button>
+      </div>
+    </div>`;
+  }
+
+  rowAhorro(i,key){
+    const p=i.meta?((i.actual/i.meta)*100).toFixed(1):0;
+    const w=i.meta?Math.min(100,(i.actual/i.meta)*100):0;
+    return `<div class="item">
+      <div class="row">
+        <div>💎 <b>${i.nombre}</b><div class="meta">Meta ${fmt(i.meta)} · ${i.fecha||""}</div></div>
+        <div><b>${fmt(i.actual)}</b></div>
+      </div>
+      <div class="meta">${p}%</div>
+      <div style="background:#eef0f6;height:8px;border-radius:6px;margin-top:6px">
+        <div style="width:${w.toFixed(1)}%;height:100%;background:#6c5ce7;border-radius:6px"></div>
+      </div>
+      <div class="actions">
+        <a data-action="addsave" data-id="${i.id}" href="#">💰 Añadir</a>
+        <a data-action="edit" data-key="${key}" data-id="${i.id}" href="#">✏️ Editar</a>
+        <a data-action="del" data-key="${key}" data-id="${i.id}" href="#">🗑️ Eliminar</a>
+      </div>
+    </div>`;
+  }
+
+  renderDashboard(ing,gastos,libre){
+    const tasa=ing?((libre/ing)*100).toFixed(1):0;
+    const color=libre>=0?"#00b894":"#ff6b6b";
+    const el=document.getElementById("analisisMensual");
+    if(!el) return;
+    el.innerHTML=`<div class="item"><b style="color:${color}">${fmt(libre)}</b> de balance — Ahorro ${tasa}%</div>`;
+  }
+
+  renderMetas(ahorros){
+    const el=document.getElementById("metasAhorro"); 
+    if(!el) return;
+    if(!ahorros.length){ el.innerHTML='<p class="meta">Crea una meta para empezar.</p>'; return; }
+    el.innerHTML=ahorros.map(a=>{
+      const p=a.meta?Math.min(100,(a.actual/a.meta)*100):0;
+      return `<div class="item">
+        <b>${a.nombre}</b><div class="meta">${fmt(a.actual)} / ${fmt(a.meta)}</div>
+        <div style="background:#eef0f6;height:8px;border-radius:6px;margin-top:6px">
+          <div style="width:${p.toFixed(1)}%;height:100%;background:#6c5ce7;border-radius:6px"></div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  renderHistorial(){
+    const el=document.getElementById("tablaHistorial"); 
+    if(!el) return;
+    const meses=Object.keys(this.data).sort();
+    const rows=meses.map(m=>{
+      const d=this.data[m];
+      const ing=d.ingresos.reduce((s,x)=>s+(x.monto||0),0);
+      const gas=d.gastosFijos.reduce((s,x)=>s+(x.monto||0),0)
+              + d.tarjetas.reduce((s,x)=>s+(x.cuotaMensual||0),0)
+              + d.creditos.reduce((s,x)=>s+(x.cuotaMensual||0),0)
+              + d.gastosCompras.reduce((s,x)=>s+(x.monto||0),0);
+      const bal=ing-gas; 
+      const p=ing?((bal/ing)*100).toFixed(1):0;
+      return `<tr><td>${m}</td><td>${fmt(ing)}</td><td>${fmt(gas)}</td>
+        <td style="color:${bal>=0?"#00b894":"#ff6b6b"}">${fmt(bal)}</td><td>${p}%</td></tr>`;
+    }).join("");
+    el.innerHTML=`<div style="overflow:auto">
+      <table><thead><tr><th>Mes</th><th>Ingresos</th><th>Gastos</th><th>Balance</th><th>% Ahorro</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  }
+
+  renderConsejos(ing,gas){
+    const el=document.getElementById("recomendaciones"); 
+    if(!el) return;
+    const libre=ing-gas; 
+    const p=ing?(libre/ing)*100:0; 
+    const list=[];
+    if(libre<0) list.push({t:"🚨 Gastos Excesivos",d:"Tus gastos superan tus ingresos. Recorta no esenciales."});
+    if(p<10) list.push({t:"⚠️ Mejora tu ahorro",d:`Estás ahorrando ${p.toFixed(1)}%. Apunta al 20%.`});
+    list.push({t:"📊 50/30/20",d:"50% necesidades, 30% gustos, 20% ahorro/inversión."});
+    list.push({t:"💳 Tarjetas",d:"Paga total para evitar intereses."});
+    el.innerHTML=list.map(c=>`<div class="item"><b>${c.t}</b><div class="meta">${c.d}</div></div>`).join("");
+  }
+
+  openForm(tipo,item=null){
+    const f=(name,type,label,value,extra="")=>(
+      `<div class="field"><label>${label}</label><input data-normalize="coma" type="${type}" id="f_${name}" value="${value??""}" ${extra}></div>`
+    );
+    let title="Formulario", fields="";
+    if(tipo==="ingreso"){
+      title="Nuevo Ingreso";
+      fields= f("nombre","text","Nombre","")
+            + f("monto","number","Monto","","step='1' min='0'")
+            + f("categoria","text","Categoría","Trabajo")
+            + f("fecha","date","Fecha",`${this.mes}-01`);
+    }else if(tipo==="fijo"){
+      title="Nuevo Gasto Fijo";
+      fields= f("nombre","text","Nombre","")
+            + f("monto","number","Monto","","step='1' min='0'")
+            + f("categoria","text","Categoría","Vivienda")
+            + f("fecha","date","Fecha",`${this.mes}-01`);
+    }else if(tipo==="compra"){
+      title="Nueva Compra";
+      fields= f("nombre","text","Descripción","")
+            + f("monto","number","Monto","","step='1' min='0'")
+            + f("categoria","text","Categoría","Alimentación")
+            + f("fecha","date","Fecha",`${this.mes}-01`);
+    }else if(tipo==="ahorro"){
+      title="Nueva Meta de Ahorro";
+      fields= f("nombre","text","Nombre","")
+            + f("meta","number","Meta","","step='1' min='0'")
+            + f("actual","number","Actual","0","step='1' min='0'")
+            + f("fecha","date","Fecha",`${this.mes}-01`);
+    }else if(tipo==="tarjeta"){
+      title="Nueva Tarjeta";
+      fields= f("nombre","text","Nombre","")
+            + f("montoTotal","number","Monto total","","step='1' min='1'")
+            + f("numeroCuotas","number","Cuotas","","step='1' min='1'")
+            + f("cuotasPagadas","number","Pagadas","0","step='1' min='0'")
+            + f("tasa","text","Tasa mensual % (coma, ej: 1,85)","1,85","inputmode='decimal' pattern='^\\d+(,\\d{1,3})?$'");
+    }else if(tipo==="credito"){
+      title="Nuevo Crédito";
+      fields= f("nombre","text","Nombre","")
+            + f("montoTotal","number","Monto total","","step='1' min='1'")
+            + f("numeroCuotas","number","Cuotas","","step='1' min='1'")
+            + f("cuotasPagadas","number","Pagadas","0","step='1' min='0'")
+            + f("tasa","text","Tasa mensual % (coma, ej: 1,85)","1,85","inputmode='decimal' pattern='^\\d+(,\\d{1,3})?$'")
+            + f("aval","text","Aval % sobre capital (coma, ej: 12,00)","0,00","inputmode='decimal'")
+            + f("ivaAval","text","IVA del aval % (coma, ej: 19,00)","0,00","inputmode='decimal'");
+    }
+    this.showModal(title, fields, (vals)=>{
+      const d=this.mesData;
+      const n=(x)=>Number(x||0);
+      const pct=(x)=>this.rateFromInput(x);
+
+      if(tipo==="ingreso"){
+        d.ingresos.push({id:this.uid(),nombre:vals.nombre,monto:n(vals.monto),categoria:vals.categoria,fecha:vals.fecha});
+      }else if(tipo==="fijo"){
+        d.gastosFijos.push({id:this.uid(),nombre:vals.nombre,monto:n(vals.monto),categoria:vals.categoria,fecha:vals.fecha,paid:false});
+      }else if(tipo==="compra"){
+        d.gastosCompras.push({id:this.uid(),nombre:vals.nombre,monto:n(vals.monto),categoria:vals.categoria,fecha:vals.fecha,paid:false});
+      }else if(tipo==="ahorro"){
+        d.ahorros.push({id:this.uid(),nombre:vals.nombre,meta:n(vals.meta),actual:n(vals.actual),fecha:vals.fecha});
+      }else if(tipo==="tarjeta"){
+        const tasa=pct(vals.tasa);
+        if(!(tasa>=0 && tasa<=0.5)) { this.toast("Tasa inválida (usa coma, ≤50%)"); return; }
+        const M=n(vals.montoTotal), cu=parseInt(vals.numeroCuotas||0), pag=parseInt(vals.cuotasPagadas||0);
+        const cuota=this.cuota(M,tasa,cu);
+        d.tarjetas.push({id:this.uid(),nombre:vals.nombre,montoTotal:M,numeroCuotas:cu,cuotasPagadas:pag,tasaMensual:tasa,cuotaMensual:cuota,fecha:`${this.mes}-01`,paid:false});
+      }else if(tipo==="credito"){
+        const tasa=pct(vals.tasa), aval=pct(vals.aval||"0"), iva=pct(vals.ivaAval||"0");
+        if(!(tasa>=0 && tasa<=0.5)) { this.toast("Tasa inválida (usa coma, ≤50%)"); return; }
+        if(aval<0||aval>1){ this.toast("Aval fuera de rango (0%–100%)"); return; }
+        if(iva<0||iva>1){ this.toast("IVA aval fuera de rango (0%–100%)"); return; }
+        const M=n(vals.montoTotal), cu=parseInt(vals.numeroCuotas||0), pag=parseInt(vals.cuotasPagadas||0);
+        const cuota=this.cuota(M,tasa,cu,aval,iva);
+        d.creditos.push({id:this.uid(),nombre:vals.nombre,montoTotal:M,numeroCuotas:cu,cuotasPagadas:pag,tasaMensual:tasa,avalPct:aval,ivaAvalPct:iva,cuotaMensual:cuota,fecha:`${this.mes}-01`,paid:false});
+      }
+      this.save(); this.renderAll(); this.toast("Guardado");
+    });
+  }
+
+  edit(key,id){
+    const list=this.mesData[key]; 
+    const it=list.find(x=>x.id===id); 
+    if(!it) return;
+    
+    const isDeuda=(key==="tarjetas"||key==="creditos");
+    const f=(name,type,label,value,extra="")=>(
+      `<div class="field"><label>${label}</label><input data-normalize="coma" type="${type}" id="f_${name}" value="${value??""}" ${extra}></div>`
+    );
+    
+    let title="Editar", fields="";
+    if(!isDeuda && key!=="ahorros"){
+      fields= f("nombre","text","Nombre",it.nombre)
+            + f("monto","number","Monto",it.monto,"step='1' min='0'")
+            + f("categoria","text","Categoría",it.categoria||"")
+            + f("fecha","date","Fecha",it.fecha||`${this.mes}-01`);
+    }else if(key==="ahorros"){
+      title="Editar Meta";
+      fields= f("nombre","text","Nombre",it.nombre)
+            + f("meta","number","Meta",it.meta,"step='1' min='0'")
+            + f("actual","number","Actual",it.actual,"step='1' min='0'");
+    }else if(key==="tarjetas"){
+      title="Editar Tarjeta";
+      fields= f("nombre","text","Nombre",it.nombre)
+            + f("montoTotal","number","Monto total",it.montoTotal,"step='1' min='1'")
+            + f("numeroCuotas","number","Cuotas",it.numeroCuotas,"step='1' min='1'")
+            + f("cuotasPagadas","number","Pagadas",it.cuotasPagadas||0,"step='1' min='0'")
+            + f("tasa","text","Tasa mensual % (coma)",formatPctComma(it.tasaMensual),"inputmode='decimal'");
+    }else if(key==="creditos"){
+      title="Editar Crédito";
+      fields= f("nombre","text","Nombre",it.nombre)
+            + f("montoTotal","number","Monto total",it.montoTotal,"step='1' min='1'")
+            + f("numeroCuotas","number","Cuotas",it.numeroCuotas,"step='1' min='1'")
+            + f("cuotasPagadas","number","Pagadas",it.cuotasPagadas||0,"step='1' min='0'")
+            + f("tasa","text","Tasa mensual % (coma)",formatPctComma(it.tasaMensual),"inputmode='decimal'")
+            + f("aval","text","Aval %",it.avalPct?formatPctComma(it.avalPct):"0,00","inputmode='decimal'")
+            + f("ivaAval","text","IVA aval %",it.ivaAvalPct?formatPctComma(it.ivaAvalPct):"0,00","inputmode='decimal'");
+    }
+
+    this.showModal(title, fields, (vals)=>{
+      const n=(x)=>Number(x||0), pct=(x)=>this.rateFromInput(x);
+      if(!isDeuda && key!=="ahorros"){
+        Object.assign(it,{nombre:vals.nombre,monto:n(vals.monto),categoria:vals.categoria,fecha:vals.fecha});
+      }else if(key==="ahorros"){
+        Object.assign(it,{nombre:vals.nombre,meta:n(vals.meta),actual:n(vals.actual)});
+      }else if(key==="tarjetas"){
+        const tasa=pct(vals.tasa); if(!(tasa>=0 && tasa<=0.5)){ this.toast("Tasa inválida (≤50%)"); return; }
+        const M=n(vals.montoTotal), cu=parseInt(vals.numeroCuotas||0), pag=parseInt(vals.cuotasPagadas||0);
+        Object.assign(it,{nombre:vals.nombre,montoTotal:M,numeroCuotas:cu,cuotasPagadas:pag,tasaMensual:tasa,cuotaMensual:this.cuota(M,tasa,cu)});
+      }else if(key==="creditos"){
+        const tasa=pct(vals.tasa), aval=pct(vals.aval||"0"), iva=pct(vals.ivaAval||"0");
+        if(!(tasa>=0 && tasa<=0.5)){ this.toast("Tasa inválida (≤50%)"); return; }
+        if(aval<0||aval>1){ this.toast("Aval fuera de rango (0%–100%)"); return; }
+        if(iva<0||iva>1){ this.toast("IVA aval fuera de rango (0%–100%)"); return; }
+        const M=n(vals.montoTotal), cu=parseInt(vals.numeroCuotas||0), pag=parseInt(vals.cuotasPagadas||0);
+        Object.assign(it,{nombre:vals.nombre,montoTotal:M,numeroCuotas:cu,cuotasPagadas:pag,tasaMensual:tasa,avalPct:aval,ivaAvalPct:iva,cuotaMensual:this.cuota(M,tasa,cu,aval,iva)});
+      }
+      this.save(); this.renderAll(); this.toast("Actualizado");
+    });
+  }
+
+  del(key,id){
+    if(!confirm("¿Eliminar registro?")) return;
+    this.data[this.mes][key]=(this.data[this.mes][key]||[]).filter(x=>x.id!==id);
+    this.save(); this.renderAll(); this.toast("Eliminado");
+  }
+
+  togglePaid(key,id){
+    const list=this.mesData[key]; const it=list.find(x=>x.id===id); if(!it) return;
+    it.paid = !it.paid;
+    if((key==="tarjetas"||key==="creditos") && it.cuotasPagadas < it.numeroCuotas && it.paid){
+      it.cuotasPagadas = Math.min(it.numeroCuotas, (it.cuotasPagadas||0) + 1);
+    }
+    this.save(); this.renderAll(); this.toast(it.paid?"Marcado como pagado":"Desmarcado");
+  }
+
+  addAhorroMonto(id){
+    const a=this.mesData.ahorros.find(x=>x.id===id); if(!a) return;
+    const m=prompt("¿Cuánto agregar?","0"); const n=Number(m);
+    if(n>0){ a.actual+=n; this.save(); this.renderAll(); this.toast("Ahorro agregado"); }
+  }
+
+  showModal(title, innerHtml, onSubmit){
+    const modal=this.btns.modal, form=this.btns.modalForm, titleEl=this.btns.modalTitle;
+    titleEl.textContent=title;
+    form.innerHTML= innerHtml + `
+      <div class="actions" style="margin-top:10px">
+        <button type="submit" class="pill primary">Guardar</button>
+        <button type="button" class="pill" id="cancelModal">Cancelar</button>
+      </div>`;
+    modal.classList.remove("hidden"); modal.setAttribute("aria-hidden","false");
+    document.getElementById("cancelModal").onclick = ()=> this.closeModal();
+    form.onsubmit = (e)=>{
+      e.preventDefault();
+      const vals={};
+      [...form.querySelectorAll("input")].forEach(inp=>{ const id=inp.id.replace(/^f_/,""); vals[id]=inp.value; });
+      this.closeModal();
+      setTimeout(()=>onSubmit(vals),0);
+    };
+  }
+  
+  closeModal(){
+    const modal=this.btns.modal, form=this.btns.modalForm;
+    if(modal) modal.classList.add("hidden");
+    if(modal) modal.setAttribute("aria-hidden","true");
+    if(form) form.innerHTML="";
+  }
+
+  export(){
+    const data={exportado:new Date().toISOString(),mes:this.mes,datos:this.data};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download="organizador-financiero.json"; a.click(); URL.revokeObjectURL(url);
+  }
+  
+  reset(){ if(confirm("¿Borrar datos locales?")){ localStorage.removeItem(this.key); localStorage.removeItem(this.selKey); location.reload(); } }
+  
+  toast(m){ const t=this.toastEl; if(!t) return; t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
+}
+
+window.app = new Finanzas();
