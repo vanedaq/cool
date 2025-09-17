@@ -1,145 +1,467 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Organizador Financiero</title>
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador Financiero</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-export {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        
+        .btn-reset {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-export:hover {
+            background: #dde4e6;
+        }
+        
+        .btn-reset:hover {
+            background: #c0392b;
+        }
+        
+        .finance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .finance-item:last-child {
+            border-bottom: none;
+        }
+        
+        .finance-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            flex: 1;
+        }
+        
+        .finance-item input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .amount {
+            font-weight: 700;
+            font-size: 1.2rem;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        .positive {
+            color: #27ae60;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        .neutral {
+            color: #7f8c8d;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: #3498db;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .menu-grid, .features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .feature-item i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .analisis {
+            color: #3498db;
+        }
+        
+        .metas {
+            color: #9b59b6;
+        }
+        
+        .historial {
+            color: #f39c12;
+        }
+        
+        .month-selector {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .month-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .month-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .month-btn:hover {
+            border-color: #3498db;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="logo">💰</div>
-      <h1>Organizador Financiero</h1>
-      <p class="subtitle">Control inteligente de tus finanzas</p>
-
-      <div class="controls">
-        <select id="mesSelector" aria-label="Mes"></select>
-        <button id="exportBtn" class="btn">📥 Exportar</button>
-        <button id="resetBtn" class="btn danger">🧹 Reset</button>
-      </div>
+    <div class="container">
+        <header>
+            <h1>Organizador Financiero</h1>
+            <p class="subtitle">Control inteligente de tus finanzas</p>
+        </header>
+        
+        <div class="month-selector">
+            <button class="month-btn">Enero</button>
+            <button class="month-btn">Febrero</button>
+            <button class="month-btn">Marzo</button>
+            <button class="month-btn">Abril</button>
+            <button class="month-btn">Mayo</button>
+            <button class="month-btn">Junio</button>
+            <button class="month-btn">Julio</button>
+            <button class="month-btn active">Agosto</button>
+            <button class="month-btn">Septiembre</button>
+            <button class="month-btn">Octubre</button>
+            <button class="month-btn">Noviembre</button>
+            <button class="month-btn">Diciembre</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="left-column">
+                <div class="card">
+                    <div class="controls">
+                        <button class="btn btn-export"><i class="fas fa-file-export"></i> Exportar</button>
+                        <button class="btn btn-reset"><i class="fas fa-redo"></i> Reset</button>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Ingresos
+                        </label>
+                        <span class="amount positive">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Fijos
+                        </label>
+                        <span class="amount negative">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Tarjetas
+                        </label>
+                        <span class="amount negative">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Créditos
+                        </label>
+                        <span class="amount negative">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Compras
+                        </label>
+                        <span class="amount negative">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Ahorros
+                        </label>
+                        <span class="amount positive">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Total Gastos
+                        </label>
+                        <span class="amount negative">$ 0</span>
+                    </div>
+                    
+                    <div class="finance-item">
+                        <label>
+                            <input type="checkbox"> Disponible
+                        </label>
+                        <span class="amount positive">$ 0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-column">
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-th-large"></i> Categorías</h3>
+                    <div class="menu-grid">
+                        <div class="menu-item">
+                            <i class="fas fa-chart-pie"></i> Dashboard
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-money-bill-wave"></i> Ingresos
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-home"></i> Fijos
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-credit-card"></i> Tarjetas
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-university"></i> Créditos
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-shopping-cart"></i> Compras
+                        </div>
+                        <div class="menu-item">
+                            <i class="fas fa-piggy-bank"></i> Ahorros
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-star"></i> Funcionalidades</h3>
+                    <div class="features">
+                        <div class="feature-item analisis">
+                            <i class="fas fa-chart-line"></i> Análisis del Mes
+                        </div>
+                        <div class="feature-item metas">
+                            <i class="fas fa-bullseye"></i> Metas de Ahorro
+                        </div>
+                        <div class="feature-item historial">
+                            <i class="fas fa-search"></i> Historial
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Organizador Financiero &copy; 2023 - Control inteligente de tus finanzas personales</p>
+        </footer>
     </div>
-  </header>
 
-  <main class="container">
-    <section class="dashboard">
-      <div class="cards-grid">
-        <div class="card">
-          <div class="card-title">💵 Ingresos</div>
-          <div id="sumIngresos" class="card-value">$ 0</div>
-        </div>
-        <div class="card">
-          <div class="card-title">🏠 Fijos</div>
-          <div id="sumFijos" class="card-value">$ 0</div>
-        </div>
-        <div class="card">
-          <div class="card-title">💳 Tarjetas</div>
-          <div id="sumTarjetas" class="card-value">$ 0</div>
-        </div>
-        <div class="card">
-          <div class="card-title">🏦 Créditos</div>
-          <div id="sumCreditos" class="card-value">$ 0</div>
-        </div>
-        <div class="card">
-          <div class="card-title">🛒 Compras</div>
-          <div id="sumCompras" class="card-value">$ 0</div>
-        </div>
-        <div class="card">
-          <div class="card-title">💎 Ahorros</div>
-          <div id="sumAhorros" class="card-value">$ 0</div>
-        </div>
-        <div class="card wide">
-          <div class="card-title">📉 Total Gastos</div>
-          <div id="sumGastos" class="card-value">$ 0</div>
-        </div>
-        <div class="card wide accent">
-          <div class="card-title">💰 Disponible</div>
-          <div id="sumLibre" class="card-value">$ 0</div>
-        </div>
-      </div>
-
-      <nav class="tabs">
-        <button class="tab active" data-tab="dashboardPanel">📊 Dashboard</button>
-        <button class="tab" data-tab="ingresosPanel">💵 Ingresos</button>
-        <button class="tab" data-tab="fijosPanel">🏠 Fijos</button>
-        <button class="tab" data-tab="tarjetasPanel">💳 Tarjetas</button>
-        <button class="tab" data-tab="creditosPanel">🏦 Créditos</button>
-        <button class="tab" data-tab="comprasPanel">🛒 Compras</button>
-        <button class="tab" data-tab="ahorrosPanel">💎 Ahorros</button>
-      </nav>
-    </section>
-
-    <section id="dashboardPanel" class="panel">
-      <h2>📈 Análisis del Mes</h2>
-      <div id="analisisMensual" class="bigbox"></div>
-      <h2>🎯 Metas de Ahorro</h2>
-      <div id="metasAhorro"></div>
-      <h2>📜 Historial</h2>
-      <div id="tablaHistorial"></div>
-      <h2>💡 Recomendaciones</h2>
-      <div id="recomendaciones"></div>
-    </section>
-
-    <section id="ingresosPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>💵 Ingresos</h2>
-        <button id="addIngreso" class="pill">+ Agregar</button>
-      </div>
-      <div id="listaIngresos"></div>
-    </section>
-
-    <section id="fijosPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>🏠 Gastos Fijos</h2>
-        <button id="addFijo" class="pill">+ Agregar</button>
-      </div>
-      <div id="listaFijos"></div>
-    </section>
-
-    <section id="tarjetasPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>💳 Tarjetas de Crédito</h2>
-        <button id="addTarjeta" class="pill">+ Agregar</button>
-      </div>
-      <div id="listaTarjetas"></div>
-    </section>
-
-    <section id="creditosPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>🏦 Créditos Bancarios</h2>
-        <button id="addCredito" class="pill">+ Agregar</button>
-      </div>
-      <div id="listaCreditos"></div>
-    </section>
-
-    <section id="comprasPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>🛒 Compras</h2>
-        <button id="addCompra" class="pill">+ Agregar</button>
-      </div>
-      <div id="listaCompras"></div>
-    </section>
-
-    <section id="ahorrosPanel" class="panel hidden">
-      <div class="panel-head">
-        <h2>💎 Metas de Ahorro</h2>
-        <button id="addAhorro2" class="pill">+ Nueva Meta</button>
-      </div>
-      <div id="listaAhorros"></div>
-    </section>
-  </main>
-
-  <!-- Modal -->
-  <div id="modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-box">
-      <button id="closeModal" class="modal-close" aria-label="Cerrar">✖</button>
-      <h3 id="modalTitle">Formulario</h3>
-      <form id="modalForm"></form>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" aria-hidden="true"></div>
-
-  <script src="./app.js"></script>
+    <script>
+        // Funcionalidad básica para los botones de mes
+        document.querySelectorAll('.month-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.month-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Funcionalidad para los checkboxes
+        document.querySelectorAll('.finance-item input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const amount = this.parentElement.nextElementSibling;
+                if (this.checked) {
+                    if (amount.classList.contains('negative')) {
+                        amount.textContent = '$ 500';
+                    } else if (amount.classList.contains('positive')) {
+                        amount.textContent = '$ 1500';
+                    }
+                } else {
+                    amount.textContent = '$ 0';
+                }
+            });
+        });
+        
+        // Funcionalidad para los botones
+        document.querySelector('.btn-export').addEventListener('click', function() {
+            alert('Funcionalidad de exportación en desarrollo...');
+        });
+        
+        document.querySelector('.btn-reset').addEventListener('click', function() {
+            if (confirm('¿Estás seguro de que quieres resetear todos los valores?')) {
+                document.querySelectorAll('.finance-item input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                document.querySelectorAll('.amount').forEach(amount => {
+                    amount.textContent = '$ 0';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
